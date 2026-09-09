@@ -3,75 +3,36 @@ name: Build Android APK
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04  # ✅ Updated to latest Ubuntu
+    runs-on: ubuntu-22.04  # ✅ Stable version
     
     steps:
-    # Step 1: Checkout code
-    - name: Checkout code
+    - name: Checkout
       uses: actions/checkout@v4
     
-    # Step 2: Setup Java (updated to v5)
-    - name: Set up Java 17
-      uses: actions/setup-java@v5  # ✅ Updated to v5
+    - name: Setup Java 17
+      uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
     
-    # Step 3: Setup Flutter (using official action)
-    - name: Set up Flutter
+    - name: Setup Flutter
       uses: flutter-actions/setup-flutter@v3
       with:
         version: '3.16.0'
         channel: 'stable'
     
-    # Step 4: Enable KVM for Android emulator (optional)
-    - name: Enable KVM
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y qemu-kvm
-        sudo usermod -aG kvm $USER
-    
-    # Step 5: Setup Android SDK
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
-    
-    # Step 6: Get dependencies
-    - name: Get Flutter dependencies
+    - name: Get dependencies
       run: flutter pub get
     
-    # Step 7: Check Flutter doctor
-    - name: Flutter doctor
-      run: flutter doctor -v
-    
-    # Step 8: Build APK
     - name: Build APK
-      run: flutter build apk --release --verbose
+      run: flutter build apk --release
     
-    # Step 9: Upload APK as artifact
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
-        name: quizllm-apk
+        name: app-release.apk
         path: build/app/outputs/flutter-apk/app-release.apk
-        retention-days: 30
-    
-    # Step 10: Create Release (if tagged)
-    - name: Create Release
-      uses: softprops/action-gh-release@v2  # ✅ Updated to v2
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: build/app/outputs/flutter-apk/app-release.apk
-        tag_name: v${{ github.run_number }}
-        name: QuizLLM v${{ github.run_number }}
-        body: |
-          Automated APK build
-          
-          **Commit:** ${{ github.event.head_commit.message }}
-        draft: false
-        prerelease: false
