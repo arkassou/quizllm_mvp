@@ -9,46 +9,61 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # ✅ Updated to latest Ubuntu
     
     steps:
     # Step 1: Checkout code
     - name: Checkout code
-      uses: actions/checkout@v4  # ✅ Updated to v4
+      uses: actions/checkout@v4
     
-    # Step 2: Setup Java
+    # Step 2: Setup Java (updated to v5)
     - name: Set up Java 17
-      uses: actions/setup-java@v4  # ✅ Updated to v4
+      uses: actions/setup-java@v5  # ✅ Updated to v5
       with:
         java-version: '17'
         distribution: 'temurin'
     
-    # Step 3: Setup Flutter (using official Flutter action)
+    # Step 3: Setup Flutter (using official action)
     - name: Set up Flutter
-      uses: flutter-actions/setup-flutter@v3  # ✅ Changed to official action
+      uses: flutter-actions/setup-flutter@v3
       with:
         version: '3.16.0'
         channel: 'stable'
     
-    # Step 4: Get dependencies
+    # Step 4: Enable KVM for Android emulator (optional)
+    - name: Enable KVM
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qemu-kvm
+        sudo usermod -aG kvm $USER
+    
+    # Step 5: Setup Android SDK
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+    
+    # Step 6: Get dependencies
     - name: Get Flutter dependencies
       run: flutter pub get
     
-    # Step 5: Build APK
-    - name: Build APK
-      run: flutter build apk --release
+    # Step 7: Check Flutter doctor
+    - name: Flutter doctor
+      run: flutter doctor -v
     
-    # Step 6: Upload APK as artifact (updated to v4)
+    # Step 8: Build APK
+    - name: Build APK
+      run: flutter build apk --release --verbose
+    
+    # Step 9: Upload APK as artifact
     - name: Upload APK
-      uses: actions/upload-artifact@v4  # ✅ Updated to v4
+      uses: actions/upload-artifact@v4
       with:
         name: quizllm-apk
         path: build/app/outputs/flutter-apk/app-release.apk
         retention-days: 30
     
-    # Step 7: Create Release (optional)
+    # Step 10: Create Release (if tagged)
     - name: Create Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2  # ✅ Updated to v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: build/app/outputs/flutter-apk/app-release.apk
