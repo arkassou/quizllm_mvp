@@ -1,0 +1,40 @@
+name: quizllm
+description: AI-Powered Russian Law Quiz App
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # HTTP requests to LLM APIs
+  http: ^1.1.0
+  dio: ^5.3.0
+  
+  # QR Code generation
+  qr_flutter: ^4.1.0
+  
+  # Local database
+  sqflite: ^2.3.0
+  path: ^1.8.3
+  
+  # State management
+  provider: ^6.0.5
+  
+  # Utilities
+  uuid: ^4.0.0
+  shared_preferences: ^2.2.0
+  
+  # UI enhancements
+  flutter_barcode_scanner: ^2.0.0
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
